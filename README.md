@@ -11,7 +11,16 @@ relation first appeared. Great for extension authors, DBAs writing
 version-portable queries, and anyone who's ever wondered "wait, does
 `pg_stat_activity.leader_pid` exist in 12?"
 
-![screenshot placeholder](docs/screenshot.png)
+## Screenshots
+
+### Home — every relation, every version at a glance
+![Home page](docs/home.png)
+
+### "What changed in PG 16" — per-version changelog
+![Version changelog](docs/version-changes.png)
+
+### Relation detail — column history matrix
+![Relation detail](docs/relation-detail.png)
 
 ## What's inside
 
