@@ -246,6 +246,10 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
   background: var(--removed);
   color: #0d1117;
 }
+.presence .cell.beta {
+  outline: 1px dashed var(--changed);
+  outline-offset: -1px;
+}
 
 /* -- Relation detail ------------------------------------------------------ */
 
@@ -398,3 +402,106 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
   color: var(--fg-mute);
   font-size: 12px;
 }
+
+/* -- Version strip / chips ----------------------------------------------- */
+
+.version-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 24px;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.version-strip-label {
+  font-size: 12px;
+  color: var(--fg-mute);
+  margin-right: 6px;
+}
+.version-chip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  color: var(--fg);
+}
+.version-chip:hover { background: var(--bg-hover); text-decoration: none; }
+.version-chip.beta {
+  border-style: dashed;
+  border-color: var(--changed);
+  color: var(--changed);
+}
+
+/* Sidebar version pills */
+.sidebar-versions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 12px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.sidebar-version {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  color: var(--fg-dim);
+}
+.sidebar-version:hover { background: var(--bg-hover); color: var(--fg); text-decoration: none; }
+.sidebar-version.active { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+.sidebar-version.beta { border-style: dashed; border-color: var(--changed); color: var(--changed); }
+
+/* -- Version-changes summary strip and diff blocks ----------------------- */
+
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.strip-stat {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.strip-stat.tone-added   { border-left-color: var(--added); }
+.strip-stat.tone-removed { border-left-color: var(--removed); }
+.strip-stat.tone-changed { border-left-color: var(--changed); }
+.strip-value { font-size: 22px; font-weight: 600; }
+.strip-label { color: var(--fg-mute); font-size: 12px; }
+
+.change-section {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-panel);
+}
+.change-section > li {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.change-section > li:last-child { border-bottom: none; }
+
+.change-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 12.5px;
+}
+.change-list li { padding: 2px 0; }
+
+.tag-added   { color: var(--added);   font-family: var(--font-mono); font-weight: 700; }
+.tag-removed { color: var(--removed); font-family: var(--font-mono); font-weight: 700; }
+.tag-changed { color: var(--changed); font-family: var(--font-mono); font-weight: 700; }

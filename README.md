@@ -16,15 +16,22 @@ version-portable queries, and anyone who's ever wondered "wait, does
 ## What's inside
 
 - **Home page** — every relation grouped by kind (catalog / view / stat view),
-  with tiny per-version presence chips.
+  with tiny per-version presence chips. A version strip at the top jumps
+  straight to any release's changelog.
+- **Version changelog** (`#/v/16`) — pick a PG version and see everything that
+  changed *because of* that release: new relations, dropped relations, columns
+  added/removed, and column type changes, each linking back to the relation
+  detail view.
 - **Relation detail** — a matrix of columns × versions with add / change /
   remove highlights, plus the full column list at any version you pick from
   the version dropdown. The description blurb comes from the PostgreSQL SGML
   docs at that version.
-- **Sidebar navigator** — searchable, always-visible list of every relation.
+- **Sidebar navigator** — searchable, always-visible list of every relation
+  plus a row of version pills.
 - Data is generated once at build time from the PostgreSQL SGML source at each
   release tag (`REL_18_6`, `REL_17_11`, …, `REL9_6_24`) and shipped as a
-  single JSON file — no backend required.
+  single JSON file — no backend required. Unreleased next majors are picked
+  up automatically from `REL_XX_BETAn` tags and shown as e.g. `19β`.
 
 ## Data source
 
@@ -34,15 +41,57 @@ release tag, parses out every `<sect1 id="catalog-...">`, `<sect1 id="view-...">
 and `<sect2 id="monitoring-...">` block (plus legacy `<table id="pg-stat-...">`
 tables for pre-13), and emits `src/data/catalog.json`.
 
-To refresh the dataset:
+## Updating for a new PostgreSQL release
+
+The extractor auto-discovers major versions from git tags, so a new release
+usually needs zero code changes.
+
+1. **Pull latest tags in your postgres checkout:**
+
+   ```sh
+   cd /path/to/postgres && git fetch --tags
+   ```
+
+2. **Regenerate the dataset:**
+
+   ```sh
+   cd /path/to/pg-catalog-almanac
+   PG_REPO=/path/to/postgres npm run extract
+   ```
+
+   By default the script scans every `REL9_x_y` and `REL_XX_y` tag from PG 9.6
+   forward, picks the latest minor of each released major, and appends the
+   latest `REL_XX_BETAn` tag of any next major that hasn't shipped yet (shown
+   as `19β`, `20β`, etc.). The chosen tag for each major is recorded in
+   `catalog.json` under `versionTags`.
+
+3. **Rebuild the container:**
+
+   ```sh
+   docker compose up -d --build
+   ```
+
+4. **Commit the updated JSON:**
+
+   ```sh
+   git add src/data/catalog.json && git commit -m "Data refresh: add PG 20"
+   ```
+
+### Extraction knobs
+
+- `PG_REPO=/path/to/postgres` — location of the postgres checkout (default `../postgres`).
+- `PG_MAJORS=9.6,10,...,20,20b` — override the auto-discovered list.
+- `PG_MIN_MAJOR=13` — drop older majors from the auto-discovered list.
+- `PG_AUTO=0` — disable auto-discovery entirely (uses the hard-coded default list).
+
+### Adding a not-yet-released major manually
+
+If beta tags aren't cut yet but you want to preview `master`, tag it locally:
 
 ```sh
-# Point at your postgres checkout (default: ../postgres):
-PG_REPO=/path/to/postgres npm run extract
+cd /path/to/postgres && git tag REL_20_BETA0 master
+cd /path/to/pg-catalog-almanac && npm run extract
 ```
-
-The tracked major versions and the tag chosen for each are recorded in the
-generated file's `versionTags` key.
 
 ## Quick start
 

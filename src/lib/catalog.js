@@ -14,6 +14,20 @@ export const KIND_LABEL = {
 
 export const KIND_ORDER = ['catalog', 'view', 'stats'];
 
+export function isBetaVersion(v) {
+  return typeof v === 'string' && v.endsWith('b');
+}
+
+export function versionLabel(v) {
+  return isBetaVersion(v) ? `${v.slice(0, -1)}β` : v;
+}
+
+export function versionTitle(v) {
+  return isBetaVersion(v)
+    ? `PG ${v.slice(0, -1)} beta (unreleased)`
+    : `PG ${v}`;
+}
+
 // For each relation, return an array of { version, present } tuples.
 export function presence(rel) {
   return versions.map(v => ({
@@ -32,7 +46,56 @@ export function lifespan(rel) {
   };
 }
 
-// Build a per-column matrix for a relation:
+// Compute what changed *between the previous tracked version and this one*.
+// Returns { newRelations, removedRelations, changedRelations } where
+// changedRelations = [{ name, kind, added: [], removed: [], typeChanged: [{name, oldType, newType}] }]
+export function diffVersion(version) {
+  const idx = versions.indexOf(version);
+  const prev = idx > 0 ? versions[idx - 1] : null;
+  const newRelations = [];
+  const removedRelations = [];
+  const changedRelations = [];
+
+  for (const rel of relations) {
+    const curr = rel.byVersion[version];
+    const before = prev ? rel.byVersion[prev] : null;
+    if (curr && !before) {
+      if (prev) newRelations.push(rel);
+      continue;
+    }
+    if (!curr && before) {
+      removedRelations.push(rel);
+      continue;
+    }
+    if (!curr || !before) continue;
+
+    const byName = new Map(before.columns.map(c => [c.name, c]));
+    const added = [];
+    const typeChanged = [];
+    const currNames = new Set();
+    for (const c of curr.columns) {
+      currNames.add(c.name);
+      const old = byName.get(c.name);
+      if (!old) added.push(c);
+      else if (old.type && c.type && old.type !== c.type) {
+        typeChanged.push({ name: c.name, oldType: old.type, newType: c.type });
+      }
+    }
+    const removed = before.columns.filter(c => !currNames.has(c.name));
+
+    if (added.length || removed.length || typeChanged.length) {
+      changedRelations.push({
+        name: rel.name,
+        kind: rel.kind,
+        added,
+        removed,
+        typeChanged,
+      });
+    }
+  }
+
+  return { prev, newRelations, removedRelations, changedRelations };
+}
 //   returns { columns: [colName,...], statuses: { [colName]: { [ver]: 'absent'|'present'|'added'|'removed'|'changed', type: string } } }
 export function buildColumnMatrix(rel) {
   const columnFirstSeen = new Map();

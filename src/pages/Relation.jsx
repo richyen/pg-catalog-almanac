@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   relations, relationsByName, versions, KIND_LABEL, buildColumnMatrix, lifespan,
+  versionLabel, versionTitle, isBetaVersion,
 } from '../lib/catalog.js';
 
 export default function Relation() {
@@ -38,9 +39,9 @@ export default function Relation() {
             &nbsp;·&nbsp;
             {life.first === versions[0]
               ? `Present since ${versions[0]}`
-              : `Introduced in PG ${life.first}`}
+              : `Introduced in PG ${versionLabel(life.first)}`}
             {life.last !== versions[versions.length - 1] &&
-              ` · gone after PG ${life.last}`}
+              ` · gone after PG ${versionLabel(life.last)}`}
             &nbsp;·&nbsp; {life.all.length} of {versions.length} tracked versions
           </div>
         </div>
@@ -69,7 +70,7 @@ export default function Relation() {
           >
             {versions.map(v => (
               <option key={v} value={v} disabled={!rel.byVersion[v]}>
-                PG {v}{!rel.byVersion[v] ? ' (n/a)' : ''}
+                PG {versionLabel(v)}{!rel.byVersion[v] ? ' (n/a)' : ''}
               </option>
             ))}
           </select>
@@ -78,12 +79,12 @@ export default function Relation() {
 
       {versionEntry?.description ? (
         <div className="blurb">
-          <strong style={{ color: 'var(--fg)' }}>PG {selectedVersion}:</strong>{' '}
+          <strong style={{ color: 'var(--fg)' }}>PG {versionLabel(selectedVersion)}:</strong>{' '}
           {versionEntry.description}
         </div>
       ) : (
         <div className="blurb">
-          No description recorded for PG {selectedVersion}.
+          No description recorded for PG {versionLabel(selectedVersion)}.
         </div>
       )}
 
@@ -95,7 +96,9 @@ export default function Relation() {
               <th>Column</th>
               <th>Type (latest)</th>
               {versions.map(v => (
-                <th key={v} className="cell">{v}</th>
+                <th key={v} className="cell" title={versionTitle(v)}>
+                  {versionLabel(v)}
+                </th>
               ))}
             </tr>
           </thead>
@@ -124,9 +127,8 @@ export default function Relation() {
         <span style={{ opacity: 0.6 }}><span className="chip" style={{ background: 'transparent', border: '1px dashed var(--border-strong)' }} /> relation not present</span>
       </div>
 
-      <div className="section-title">Full column list in PG {selectedVersion}</div>
-      {versionEntry ? (
-        <div className="version-cols-wrap">
+      <div className="section-title">Full column list in PG {versionLabel(selectedVersion)}</div>
+      {versionEntry ? (        <div className="version-cols-wrap">
           <table className="version-cols">
             <thead>
               <tr>
@@ -147,7 +149,7 @@ export default function Relation() {
           </table>
         </div>
       ) : (
-        <div className="empty">Relation not present in PG {selectedVersion}.</div>
+        <div className="empty">Relation not present in PG {versionLabel(selectedVersion)}.</div>
       )}
     </>
   );

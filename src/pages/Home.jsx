@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  relations, versions, KIND_LABEL, KIND_ORDER, lifespan,
+  relations, versions, KIND_LABEL, lifespan,
+  versionLabel, versionTitle, isBetaVersion,
 } from '../lib/catalog.js';
 
 const KIND_TABS = [
@@ -38,11 +39,30 @@ export default function Home() {
           Every table and view under <code>pg_catalog</code> that ships with
           PostgreSQL &mdash; <code>pg_class</code>, <code>pg_stat_activity</code>,
           <code>pg_roles</code>, and the rest &mdash; along with how their
-          columns evolved between {versions[0]} and {versions[versions.length - 1]}.
+          columns evolved between {versions[0]} and {versionLabel(versions[versions.length - 1])}.
           Click any relation to see what was added, changed, or removed in each
           release.
+          {versions.some(isBetaVersion) && (
+            <>
+              {' '}<em>Versions marked <code>β</code> are still in beta and may change before release.</em>
+            </>
+          )}
         </p>
       </header>
+
+      <div className="version-strip">
+        <span className="version-strip-label">Jump to a version's changelog:</span>
+        {versions.map(v => (
+          <Link
+            key={v}
+            to={`/v/${encodeURIComponent(v)}`}
+            className={`version-chip${isBetaVersion(v) ? ' beta' : ''}`}
+            title={versionTitle(v) + ' — see what changed'}
+          >
+            {versionLabel(v)}
+          </Link>
+        ))}
+      </div>
 
       <div className="toolbar">
         <div className="filters">
@@ -95,8 +115,8 @@ function RelationCard({ rel }) {
       <div className="subtitle">
         {life.first === versions[0]
           ? `Present since ${versions[0]}`
-          : `Introduced in ${life.first}`}
-        {life.last !== versions[versions.length - 1] && ` · gone after ${life.last}`}
+          : `Introduced in ${versionLabel(life.first)}`}
+        {life.last !== versions[versions.length - 1] && ` · gone after ${versionLabel(life.last)}`}
       </div>
       <div className="presence">
         {versions.map(v => {
@@ -107,9 +127,10 @@ function RelationCard({ rel }) {
           if (on) cls.push('on');
           if (isFirst) cls.push('new');
           if (isLast) cls.push('gone');
+          if (isBetaVersion(v)) cls.push('beta');
           return (
-            <span key={v} className={cls.join(' ')} title={`PG ${v}`}>
-              {v}
+            <span key={v} className={cls.join(' ')} title={versionTitle(v)}>
+              {versionLabel(v)}
             </span>
           );
         })}

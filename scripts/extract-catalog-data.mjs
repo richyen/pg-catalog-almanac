@@ -24,7 +24,24 @@ if (!existsSync(PG_REPO)) {
   process.exit(1);
 }
 
-const MAJORS = ['9.6', '10', '11', '12', '13', '14', '15', '16', '17', '18'];
+// Trailing 'b' marks a not-yet-released (beta) major; the extractor picks the
+// latest REL_<major>_BETA<n> tag instead of a regular minor release.
+//
+// The list can be overridden with PG_MAJORS=9.6,10,...,20b or extended
+// automatically with PG_AUTO=1 (default).  With PG_AUTO=1 the extractor scans
+// all REL_* tags in the repository, keeps every major from PG_MIN_MAJOR
+// upward (default 9.6), and appends the latest REL_<next>_BETA tag as
+// "<next>b" when that beta major has no released tag yet.
+const DEFAULT_MAJORS = ['9.6', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19b'];
+const PG_MIN_MAJOR = process.env.PG_MIN_MAJOR || '9.6';
+const AUTO = process.env.PG_AUTO !== '0';
+
+let MAJORS;
+if (process.env.PG_MAJORS) {
+  MAJORS = process.env.PG_MAJORS.split(',').map(s => s.trim()).filter(Boolean);
+} else {
+  MAJORS = DEFAULT_MAJORS.slice();
+}
 
 const SGML_FILES = [
   'doc/src/sgml/catalogs.sgml',
@@ -45,6 +62,10 @@ function listTags() {
 }
 
 function pickTagForMajor(major, allTags) {
+  if (major.endsWith('b')) {
+    const base = major.slice(0, -1);
+    return latest(allTags, new RegExp(`^REL_${base}_BETA(\\d+)$`));
+  }
   if (major.startsWith('9.')) {
     const [, minor] = major.split('.');
     return latest(allTags, new RegExp(`^REL9_${minor}_(\\d+)$`));
@@ -62,6 +83,37 @@ function latest(tags, re) {
     if (n > bestN) { bestN = n; best = t; }
   }
   return best;
+}
+
+// Compare two major strings like "9.6", "10", "18", "19b" for ordering.
+function majorRank(m) {
+  const base = m.endsWith('b') ? m.slice(0, -1) : m;
+  const [maj, min] = base.split('.');
+  const suffix = m.endsWith('b') ? -0.5 : 0;   // beta of X ranks just below X
+  return parseInt(maj, 10) * 1000 + (min ? parseInt(min, 10) : 0) + suffix;
+}
+
+// Discover majors from git tags: every REL9_x_y and REL_XX_y (released), plus
+// the latest REL_XX_BETAn where XX has no released tag yet.
+function discoverMajors(allTags, minMajor) {
+  const minRank = majorRank(minMajor);
+  const releasedMajors = new Set();
+  const betaMajors = new Set();
+  for (const t of allTags) {
+    let m;
+    if ((m = t.match(/^REL9_(\d+)_\d+$/)))         releasedMajors.add(`9.${m[1]}`);
+    else if ((m = t.match(/^REL_(\d+)_\d+$/)))     releasedMajors.add(m[1]);
+    else if ((m = t.match(/^REL_(\d+)_BETA\d+$/))) betaMajors.add(m[1]);
+  }
+  const out = [];
+  for (const maj of releasedMajors) {
+    if (majorRank(maj) >= minRank) out.push(maj);
+  }
+  for (const maj of betaMajors) {
+    if (!releasedMajors.has(maj) && majorRank(maj) >= minRank) out.push(maj + 'b');
+  }
+  out.sort((a, b) => majorRank(a) - majorRank(b));
+  return out;
 }
 
 function safeShow(tag, path) {
@@ -249,6 +301,10 @@ function nearestPrecedingPara(sgml, tableStart) {
 // ---------------------------------------------------------------------------
 
 const allTags = listTags();
+if (AUTO && !process.env.PG_MAJORS) {
+  MAJORS = discoverMajors(allTags, PG_MIN_MAJOR);
+  console.log(`[auto] discovered majors: ${MAJORS.join(', ')}`);
+}
 const versions = [];
 for (const major of MAJORS) {
   const tag = pickTagForMajor(major, allTags);
