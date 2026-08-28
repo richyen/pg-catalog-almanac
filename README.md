@@ -119,6 +119,33 @@ npm run extract        # generates src/data/catalog.json (needs ../postgres chec
 npm run dev            # http://localhost:5173
 ```
 
+## Hosting on GitHub Pages
+
+The repo ships with a GitHub Actions workflow
+([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) that builds and
+publishes to Pages on every push to `main`. Live URL will be:
+
+> **https://richyen.github.io/pg-catalog-almanac/**
+
+One-time setup:
+
+1. Push this repo to GitHub (already done).
+2. In the repo's **Settings → Pages**, set *Source* to **GitHub Actions**.
+3. Trigger the workflow — either push a commit or hit
+   *Actions → Deploy to GitHub Pages → Run workflow*. The first run enables
+   the environment and publishes the site.
+
+The workflow builds with `VITE_BASE=/pg-catalog-almanac/` so assets resolve
+under the subpath. Deep links work without extra rewrites because the app uses
+hash routing (`#/r/pg_class`, `#/v/16`, …). Nothing else is needed.
+
+### Linking from `richyen.github.io`
+
+If you'd like a shortcut from your user site, add a card/link on
+`richyen.github.io` pointing at `https://richyen.github.io/pg-catalog-almanac/`.
+User-site repos and project-site repos are served independently — no
+sub-repository setup is required.
+
 ## Project layout
 
 ```

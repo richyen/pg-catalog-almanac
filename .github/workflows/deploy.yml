@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Build under /pg-catalog-almanac/ so asset URLs resolve on
+      # richyen.github.io/pg-catalog-almanac/.
+      - run: npm run build
+        env:
+          VITE_BASE: /pg-catalog-almanac/
+
+      # GitHub Pages doesn't serve dot-underscore files well; nothing special
+      # needed here, but include a .nojekyll to skip Jekyll processing.
+      - run: touch dist/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
