@@ -5,7 +5,7 @@ import {
   versionLabel, versionTitle, isBetaVersion,
 } from '../lib/catalog.js';
 
-export default function Sidebar() {
+export default function Sidebar({ id, open = false }) {
   const [q, setQ] = useState('');
   const location = useLocation();
   const activeName = location.pathname.startsWith('/r/')
@@ -26,7 +26,10 @@ export default function Sidebar() {
   }, [q]);
 
   return (
-    <aside className="sidebar">
+    <aside
+      id={id}
+      className={'sidebar' + (open ? ' open' : '')}
+    >
       <div className="sidebar-header">
         <h1><Link to="/">pg-catalog-almanac</Link></h1>
         <div className="tag">PG {versions[0]} &rarr; {versionLabel(versions[versions.length - 1])}</div>

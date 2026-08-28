@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   relations, relationsByName, versions, KIND_LABEL, buildColumnMatrix, lifespan,
-  versionLabel, versionTitle, isBetaVersion,
+  versionLabel, versionTitle, isBetaVersion, docsUrl, docsUrlVersionLabel,
 } from '../lib/catalog.js';
 
 export default function Relation() {
@@ -26,6 +26,11 @@ export default function Relation() {
   }
 
   const versionEntry = rel.byVersion[selectedVersion];
+  const docHref = docsUrl(rel);
+  const docVerLabel = docsUrlVersionLabel(rel);
+  const lastIsLatestStable = life.last &&
+    !isBetaVersion(life.last) &&
+    versions.slice(versions.indexOf(life.last) + 1).every(isBetaVersion);
 
   return (
     <>
@@ -44,24 +49,23 @@ export default function Relation() {
               ` · gone after PG ${versionLabel(life.last)}`}
             &nbsp;·&nbsp; {life.all.length} of {versions.length} tracked versions
           </div>
+          {docHref && (
+            <div className="docs-link">
+              <a href={docHref} target="_blank" rel="noopener noreferrer">
+                postgresql.org docs
+                <span className="docs-link-ver">
+                  ({lastIsLatestStable ? 'latest' : `PG ${docVerLabel}`})
+                </span>
+                <span className="ext" aria-hidden="true"> ↗</span>
+              </a>
+            </div>
+          )}
         </div>
         <div className="detail-controls">
-          <label htmlFor="jump">Jump to:</label>
-          <select
-            id="jump"
-            onChange={e => {
-              const v = e.target.value;
-              if (v) navigate(`/r/${encodeURIComponent(v)}`);
-            }}
-            value=""
-          >
-            <option value="">Other relation...</option>
-            {relations.map(r => (
-              <option key={r.name} value={r.name}>
-                {r.name}  ({KIND_LABEL[r.kind]})
-              </option>
-            ))}
-          </select>
+          <RelationCombobox
+            currentName={rel.name}
+            onPick={r => navigate(`/r/${encodeURIComponent(r.name)}`)}
+          />
           <label htmlFor="ver">Version:</label>
           <select
             id="ver"
@@ -176,4 +180,151 @@ function latestTypeFor(rel, colName) {
     if (c) return c.type;
   }
   return '';
+}
+
+function RelationCombobox({ currentName, onPick }) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const [cursor, setCursor] = useState(0);
+  const inputRef = useRef(null);
+  const listRef = useRef(null);
+  const wrapRef = useRef(null);
+
+  const results = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    const out = [];
+    for (const r of relations) {
+      if (r.name === currentName) continue;
+      if (needle && !r.name.includes(needle)) continue;
+      out.push(r);
+    }
+    return out;
+  }, [query, currentName]);
+
+  useEffect(() => { setCursor(0); }, [query]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = e => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [open]);
+
+  // Keep the highlighted row scrolled into view.
+  useEffect(() => {
+    if (!open || !listRef.current) return;
+    const el = listRef.current.querySelector(`[data-idx="${cursor}"]`);
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ block: 'nearest' });
+    }
+  }, [cursor, open, results]);
+
+  const pick = r => {
+    setOpen(false);
+    setQuery('');
+    onPick(r);
+  };
+
+  const onKeyDown = e => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setOpen(true);
+      setCursor(c => Math.min(results.length - 1, c + 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setOpen(true);
+      setCursor(c => Math.max(0, c - 1));
+    } else if (e.key === 'Enter') {
+      if (open && results[cursor]) {
+        e.preventDefault();
+        pick(results[cursor]);
+      }
+    } else if (e.key === 'Escape') {
+      if (open) { e.preventDefault(); setOpen(false); }
+    } else if (e.key === 'Home') {
+      if (open) { e.preventDefault(); setCursor(0); }
+    } else if (e.key === 'End') {
+      if (open) { e.preventDefault(); setCursor(results.length - 1); }
+    }
+  };
+
+  return (
+    <div className="combobox" ref={wrapRef}>
+      <label htmlFor="jump" className="combobox-label">Jump to:</label>
+      <div className="combobox-field">
+        <input
+          id="jump"
+          ref={inputRef}
+          type="text"
+          role="combobox"
+          aria-expanded={open}
+          aria-controls="jump-listbox"
+          aria-autocomplete="list"
+          aria-activedescendant={open && results[cursor] ? `jump-opt-${cursor}` : undefined}
+          placeholder="Other relation..."
+          value={query}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onClick={() => setOpen(true)}
+          onKeyDown={onKeyDown}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        {query && (
+          <button
+            type="button"
+            className="combobox-clear"
+            aria-label="Clear"
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => { setQuery(''); setOpen(true); inputRef.current?.focus(); }}
+          >×</button>
+        )}
+      </div>
+      {open && (
+        <ul
+          id="jump-listbox"
+          role="listbox"
+          className="combobox-list"
+          ref={listRef}
+        >
+          {results.length === 0 ? (
+            <li className="combobox-empty">No matches</li>
+          ) : results.map((r, i) => (
+            <li
+              key={r.name}
+              id={`jump-opt-${i}`}
+              data-idx={i}
+              role="option"
+              aria-selected={i === cursor}
+              className={'combobox-item' + (i === cursor ? ' active' : '')}
+              onMouseEnter={() => setCursor(i)}
+              onMouseDown={e => { e.preventDefault(); pick(r); }}
+            >
+              <span className={`swatch dot-${r.kind}`} />
+              <span className="combobox-name">
+                {highlightMatch(r.name, query)}
+              </span>
+              <span className="combobox-kind">{KIND_LABEL[r.kind]}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function highlightMatch(text, query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return text;
+  const idx = text.toLowerCase().indexOf(q);
+  if (idx < 0) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark>{text.slice(idx, idx + q.length)}</mark>
+      {text.slice(idx + q.length)}
+    </>
+  );
 }

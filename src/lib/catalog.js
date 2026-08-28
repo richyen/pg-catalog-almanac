@@ -46,6 +46,48 @@ export function lifespan(rel) {
   };
 }
 
+const LATEST_STABLE = (() => {
+  for (let i = versions.length - 1; i >= 0; i--) {
+    if (!isBetaVersion(versions[i])) return versions[i];
+  }
+  return null;
+})();
+
+// URL of the postgresql.org docs page for this relation. Prefers the latest
+// non-beta version where the relation still existed; falls back to /devel/ if
+// the relation only ever appeared in a beta.
+export function docsUrl(rel) {
+  const life = lifespan(rel);
+  if (!life.last) return null;
+  let ver = null;
+  for (let i = life.all.length - 1; i >= 0; i--) {
+    if (!isBetaVersion(life.all[i])) { ver = life.all[i]; break; }
+  }
+  let vSeg;
+  if (!ver) vSeg = 'devel';
+  else if (ver === LATEST_STABLE) vSeg = 'current';
+  else vSeg = ver;
+
+  const slug = rel.name.replace(/_/g, '-');
+  if (rel.kind === 'stats') {
+    return `https://www.postgresql.org/docs/${vSeg}/monitoring-stats.html#MONITORING-${slug.toUpperCase()}-VIEW`;
+  }
+  if (rel.kind === 'view') {
+    return `https://www.postgresql.org/docs/${vSeg}/view-${slug}.html`;
+  }
+  return `https://www.postgresql.org/docs/${vSeg}/catalog-${slug}.html`;
+}
+
+// Human-friendly label for the version used by docsUrl().
+export function docsUrlVersionLabel(rel) {
+  const life = lifespan(rel);
+  if (!life.last) return null;
+  for (let i = life.all.length - 1; i >= 0; i--) {
+    if (!isBetaVersion(life.all[i])) return versionLabel(life.all[i]);
+  }
+  return 'devel';
+}
+
 // Compute what changed *between the previous tracked version and this one*.
 // Returns { newRelations, removedRelations, changedRelations } where
 // changedRelations = [{ name, kind, added: [], removed: [], typeChanged: [{name, oldType, newType}] }]
