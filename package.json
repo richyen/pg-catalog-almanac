@@ -1,0 +1,22 @@
+{
+  "name": "pg-catalog-almanac",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A visualizer for how PostgreSQL system catalogs and views have evolved across versions.",
+  "scripts": {
+    "extract": "node scripts/extract-catalog-data.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 4173"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.8"
+  }
+}

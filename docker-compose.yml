@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    image: pg-catalog-almanac:latest
+    container_name: pg-catalog-almanac
+    ports:
+      - "8080:80"
+    restart: unless-stopped
