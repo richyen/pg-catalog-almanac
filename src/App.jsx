@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import Sidebar from './components/Sidebar.jsx';
 import Home from './pages/Home.jsx';
@@ -8,6 +8,7 @@ import VersionChanges from './pages/VersionChanges.jsx';
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const mainRef = useRef(null);
 
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
@@ -34,6 +35,15 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [sidebarOpen]);
 
+  // Scroll to top on location change
+  useEffect(() => {
+    mainRef.current.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+  }, [location.pathname]);
+
   return (
     <div className={'app' + (sidebarOpen ? ' sidebar-open' : '')}>
       <div className="topbar">
@@ -59,7 +69,7 @@ export default function App() {
         />
       )}
       <Sidebar id="site-sidebar" open={sidebarOpen} />
-      <main className="main">
+      <main className="main" ref={mainRef}>
         <div className="container">
           <Routes>
             <Route path="/" element={<Home />} />
