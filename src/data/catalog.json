@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-28T20:39:33.945Z",
-  "sourceRepo": "/Users/admin/code/github/postgres",
+  "generatedAt": "2026-10-06T14:49:27.589Z",
+  "sourceRepo": "/Users/richyen/github/postgres",
   "versions": [
     "9.6",
     "10",
@@ -25,7 +25,7 @@
     "17": "REL_17_11",
     "18": "REL_18_6",
     "9.6": "REL9_6_24",
-    "19b": "REL_19_BETA3"
+    "19b": "REL_19_BETA4"
   },
   "relations": [
     {
@@ -8786,7 +8786,7 @@
             {
               "name": "relkind",
               "type": "char",
-              "description": "r = ordinary table, i = index, S = sequence, t = TOAST table, v = view, m = materialized view, c = composite type, f = foreign table, p = partitioned table, I = partitioned index, g = property graph"
+              "description": "r = ordinary table, i = index, S = sequence, t = TOAST table, v = view, m = materialized view, c = composite type, f = foreign table, p = partitioned table, I = partitioned index"
             },
             {
               "name": "relnatts",
@@ -12937,7 +12937,7 @@
             {
               "name": "datcollate",
               "type": "text",
-              "description": "LC_COLLATE for this database (ignored unless datlocprovider is c)"
+              "description": "LC_COLLATE for this database"
             },
             {
               "name": "datctype",
@@ -28780,211 +28780,6 @@
       }
     },
     {
-      "name": "pg_propgraph_element",
-      "kind": "catalog",
-      "byVersion": {
-        "19b": {
-          "description": "The catalog pg_propgraph_element stores information about the vertices and edges of a property graph, collectively called the elements of the property graph.",
-          "columns": [
-            {
-              "name": "oid",
-              "type": "oid",
-              "description": "Row identifier"
-            },
-            {
-              "name": "pgepgid",
-              "type": "oid",
-              "description": "Reference to the property graph that this element belongs to"
-            },
-            {
-              "name": "pgerelid",
-              "type": "oid",
-              "description": "Reference to the table that contains the data for this property graph element"
-            },
-            {
-              "name": "pgealias",
-              "type": "name",
-              "description": "The alias of the element. This is a unique identifier for the element within the graph. It is set when the property graph is defined and defaults to the name of the underlying element table."
-            },
-            {
-              "name": "pgekind",
-              "type": "char",
-              "description": "v for a vertex, e for an edge"
-            },
-            {
-              "name": "pgesrcvertexid",
-              "type": "oid",
-              "description": "For an edge, a link to the source vertex. (Zero for a vertex.)"
-            },
-            {
-              "name": "pgedestvertexid",
-              "type": "oid",
-              "description": "For an edge, a link to the destination vertex. (Zero for a vertex.)"
-            },
-            {
-              "name": "pgekey",
-              "type": "int2[]",
-              "description": "An array of column numbers in the table referenced by pgerelid that defines the key to use for this element table. (This defaults to the primary key when the property graph is created.)"
-            },
-            {
-              "name": "pgesrckey",
-              "type": "int2[]",
-              "description": "For an edge, an array of column numbers in the table referenced by pgerelid that defines the source key to use for this element table. (Null for a vertex.) The combination of pgesrckey and pgesrcref creates the link between the edge and the source vertex."
-            },
-            {
-              "name": "pgesrcref",
-              "type": "int2[]",
-              "description": "For an edge, an array of column numbers in the table reached via pgesrcvertexid. (Null for a vertex.) The combination of pgesrckey and pgesrcref creates the link between the edge and the source vertex."
-            },
-            {
-              "name": "pgesrceqop",
-              "type": "oid[]",
-              "description": "For an edge, an array of equality operators for pgesrcref = pgesrckey comparison. (Null for a vertex.)"
-            },
-            {
-              "name": "pgedestkey",
-              "type": "int2[]",
-              "description": "For an edge, an array of column numbers in the table referenced by pgerelid that defines the destination key to use for this element table. (Null for a vertex.) The combination of pgedestkey and pgedestref creates the link between the edge and the destination vertex."
-            },
-            {
-              "name": "pgedestref",
-              "type": "int2[]",
-              "description": "For an edge, an array of column numbers in the table reached via pgedestvertexid. (Null for a vertex.) The combination of pgedestkey and pgedestref creates the link between the edge and the destination vertex."
-            },
-            {
-              "name": "pgedesteqop",
-              "type": "oid[]",
-              "description": "For an edge, an array of equality operators for pgedestref = pgedestkey comparison. (Null for a vertex.)"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "pg_propgraph_element_label",
-      "kind": "catalog",
-      "byVersion": {
-        "19b": {
-          "description": "The catalog pg_propgraph_element_label stores information about which labels apply to which elements.",
-          "columns": [
-            {
-              "name": "oid",
-              "type": "oid",
-              "description": "Row identifier"
-            },
-            {
-              "name": "pgellabelid",
-              "type": "oid",
-              "description": "Reference to the label"
-            },
-            {
-              "name": "pgelelid",
-              "type": "oid",
-              "description": "Reference to the element"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "pg_propgraph_label",
-      "kind": "catalog",
-      "byVersion": {
-        "19b": {
-          "description": "The catalog pg_propgraph_label stores information about the labels in a property graph.",
-          "columns": [
-            {
-              "name": "oid",
-              "type": "oid",
-              "description": "Row identifier"
-            },
-            {
-              "name": "pglpgid",
-              "type": "oid",
-              "description": "Reference to the property graph that this label belongs to"
-            },
-            {
-              "name": "pgllabel",
-              "type": "name",
-              "description": "The name of the label. This is unique among the labels in a graph."
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "pg_propgraph_label_property",
-      "kind": "catalog",
-      "byVersion": {
-        "19b": {
-          "description": "The catalog pg_propgraph_label_property stores information about the properties in a property graph that are specific to a label. In particular, this stores the expression that defines the property.",
-          "columns": [
-            {
-              "name": "oid",
-              "type": "oid",
-              "description": "Row identifier"
-            },
-            {
-              "name": "plppropid",
-              "type": "oid",
-              "description": "Reference to the property"
-            },
-            {
-              "name": "plpellabelid",
-              "type": "oid",
-              "description": "Reference to the label (indirectly via pg_propgraph_element_label, which then links to pg_propgraph_label)"
-            },
-            {
-              "name": "plpexpr",
-              "type": "pg_node_tree",
-              "description": "Expression tree (in nodeToString() representation) for the property's definition. The expression references the table reached via pg_propgraph_element_label and pg_propgraph_element."
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "pg_propgraph_property",
-      "kind": "catalog",
-      "byVersion": {
-        "19b": {
-          "description": "The catalog pg_propgraph_property stores information about the properties in a property graph. This only stores information that applies to a property throughout the graph, independent of what label or element it is on. Additional information, including the actual expressions that define the properties are in the catalog pg_propgraph_label_property.",
-          "columns": [
-            {
-              "name": "oid",
-              "type": "oid",
-              "description": "Row identifier"
-            },
-            {
-              "name": "pgppgid",
-              "type": "oid",
-              "description": "Reference to the property graph that this property belongs to"
-            },
-            {
-              "name": "pgpname",
-              "type": "name",
-              "description": "The name of the property. This is unique among the properties in a graph."
-            },
-            {
-              "name": "pgptypid",
-              "type": "oid",
-              "description": "The data type of this property. (This is required to be fixed for a given property in a property graph, even if the property is defined multiple times in different elements and labels.)"
-            },
-            {
-              "name": "pgptypmod",
-              "type": "int4",
-              "description": "typmod to be applied to the data type of this property. (This is required to be fixed for a given property in a property graph, even if the property is defined multiple times in different elements and labels.)"
-            },
-            {
-              "name": "pgpcollation",
-              "type": "oid",
-              "description": "The defined collation of this property, or zero if the property is not of a collatable data type. (This is required to be fixed for a given property in a property graph, even if the property is defined multiple times in different elements and labels.)"
-            }
-          ]
-        }
-      }
-    },
-    {
       "name": "pg_publication",
       "kind": "catalog",
       "byVersion": {
@@ -43874,12 +43669,12 @@
             {
               "name": "checksum_failures",
               "type": "bigint",
-              "description": "Number of data page checksum failures detected in this database (or on a shared object). Detected failures are not reset if the setting changes. Clusters which are initialized without data checksums will show this as 0. In PostgreSQL version 18 and earlier, this was set to NULL for clusters with data checksums disabled."
+              "description": "Number of data page checksum failures detected in this database (or on a shared object), or NULL if data checksums are disabled."
             },
             {
               "name": "checksum_last_failure",
               "type": "timestamp with time zone",
-              "description": "Time at which the last data page checksum failure was detected in this database (or on a shared object). Last failure is reported regardless of the setting."
+              "description": "Time at which the last data page checksum failure was detected in this database (or on a shared object), or NULL if data checksums are disabled."
             },
             {
               "name": "blk_read_time",
@@ -46276,7 +46071,7 @@
           ]
         },
         "19b": {
-          "description": "Whenever REPACK, CLUSTER or VACUUM FULL is running, the backwards-compatibility pg_stat_progress_cluster view will contain a row for each backend that is currently running either command. The tables below describe the information that will be reported and provide information about how to interpret it.",
+          "description": "Whenever REPACK, CLUSTER or VACUUM FULL is running, the backwards-compatibility pg_stat_progress_cluster view will contain a row for each backend that is currently running one of these commands. The tables below describe the information that will be reported and provide information about how to interpret it.",
           "columns": [
             {
               "name": "pid",
@@ -46301,7 +46096,7 @@
             {
               "name": "command",
               "type": "text",
-              "description": "The command that is running. Either CLUSTER or VACUUM FULL. Because this view exists for backwards-compatibility purposes only, it will translate any REPACK command into one of these other two."
+              "description": "The command that is running. Either CLUSTER or VACUUM FULL. Because this view exists for backwards-compatibility purposes only, it will translate a REPACK command into CLUSTER if index ordering is requested, or VACUUM FULL otherwise."
             },
             {
               "name": "phase",
@@ -46311,7 +46106,7 @@
             {
               "name": "cluster_index_relid",
               "type": "oid",
-              "description": "If the table is being scanned using an index, this is the OID of the index being used; otherwise, it is zero."
+              "description": "OID of the index defining the order of the rewritten table, or zero if no index ordering is requested."
             },
             {
               "name": "heap_tuples_scanned",
@@ -47380,72 +47175,11 @@
       }
     },
     {
-      "name": "pg_stat_progress_data_checksums",
-      "kind": "stats",
-      "byVersion": {
-        "19b": {
-          "description": "When data checksums are being enabled or disabled on a running cluster, the pg_stat_progress_data_checksums view will contain a row for the launcher process. When enabling data checksums, the view will also contain one row for each worker process which is currently calculating and writing checksums for the data pages in a database. The launcher provides an overview of the overall progress, such as how many databases have been processed and how many remain, while the workers track progress for currently processed databases.",
-          "columns": [
-            {
-              "name": "pid",
-              "type": "integer",
-              "description": "Process ID of the data checksum process, launcher or worker."
-            },
-            {
-              "name": "datid",
-              "type": "oid",
-              "description": "OID of this database, or 0 for the launcher process."
-            },
-            {
-              "name": "datname",
-              "type": "name",
-              "description": "Name of this database, or NULL for the launcher process."
-            },
-            {
-              "name": "phase",
-              "type": "text",
-              "description": "Current processing phase, see for description of the phases."
-            },
-            {
-              "name": "databases_total",
-              "type": "bigint",
-              "description": "The total number of databases which will be processed. Only the launcher process has this value set when enabling data checksums; otherwise this is set to NULL."
-            },
-            {
-              "name": "databases_done",
-              "type": "bigint",
-              "description": "The number of databases which have been processed. Only the launcher process has this value set when enabling data checksums; otherwise this is set to NULL."
-            },
-            {
-              "name": "relations_total",
-              "type": "bigint",
-              "description": "The total number of relations which will be processed, or NULL if the worker process hasn't calculated the number of relations yet. The launcher process has this set to NULL since it isn't responsible for processing relations, only launching worker processes."
-            },
-            {
-              "name": "relations_done",
-              "type": "bigint",
-              "description": "The number of relations which have been processed. The launcher process has this set to NULL."
-            },
-            {
-              "name": "blocks_total",
-              "type": "bigint",
-              "description": "The number of blocks in the current relation which will be processed, or NULL if the worker process hasn't calculated the number of blocks yet. The launcher process has this set to NULL."
-            },
-            {
-              "name": "blocks_done",
-              "type": "bigint",
-              "description": "The number of blocks in the current relation which have been processed. The launcher process has this set to NULL."
-            }
-          ]
-        }
-      }
-    },
-    {
       "name": "pg_stat_progress_repack",
       "kind": "stats",
       "byVersion": {
         "19b": {
-          "description": "Whenever REPACK is running, the pg_stat_progress_repack view will contain a row for each backend that is currently running the command. The tables below describe the information that will be reported and provide information about how to interpret it.",
+          "description": "Whenever REPACK, CLUSTER, or VACUUM FULL is running, the pg_stat_progress_repack view will contain a row for each backend that is currently running one of these commands. The tables below describe the information that will be reported and provide information about how to interpret it.",
           "columns": [
             {
               "name": "pid",
@@ -47465,12 +47199,12 @@
             {
               "name": "relid",
               "type": "oid",
-              "description": "OID of the table being repacked."
+              "description": "OID of the table being processed."
             },
             {
               "name": "command",
               "type": "text",
-              "description": "The command that is running. Either REPACK or VACUUM FULL, or CLUSTER."
+              "description": "The command that is running. One of CLUSTER, REPACK, or VACUUM FULL."
             },
             {
               "name": "phase",
@@ -47480,7 +47214,7 @@
             {
               "name": "repack_index_relid",
               "type": "oid",
-              "description": "If the table is being scanned using an index, this is the OID of the index being used; otherwise, it is zero."
+              "description": "OID of the index defining the order of the rewritten table, or zero if no index ordering is requested."
             },
             {
               "name": "heap_tuples_scanned",
@@ -48161,7 +47895,7 @@
           ]
         },
         "19b": {
-          "description": "Whenever VACUUM is running, the pg_stat_progress_vacuum view will contain one row for each backend (including autovacuum worker processes) that is currently vacuuming. The tables below describe the information that will be reported and provide information about how to interpret it. Progress for VACUUM FULL commands is reported via pg_stat_progress_cluster because both VACUUM FULL and CLUSTER rewrite the table, while regular VACUUM only modifies it in place. See .",
+          "description": "Whenever VACUUM is running, the pg_stat_progress_vacuum view will contain one row for each backend (including autovacuum worker processes) that is currently vacuuming. The tables below describe the information that will be reported and provide information about how to interpret it. Progress for VACUUM FULL commands is reported via pg_stat_progress_repack, and is also visible via the backwards-compatibility pg_stat_progress_cluster because both VACUUM FULL and CLUSTER rewrite the table, while regular VACUUM only modifies it in place. See and .",
           "columns": [
             {
               "name": "pid",
