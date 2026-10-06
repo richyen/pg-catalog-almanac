@@ -37,11 +37,10 @@ export default function App() {
 
   // Scroll to top on location change
   useEffect(() => {
-    mainRef.current.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "instant",
-    });
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   return (
