@@ -25,12 +25,12 @@ if (!existsSync(PG_REPO)) {
 }
 
 // Trailing 'b' marks a not-yet-released (beta) major; the extractor picks the
-// latest REL_<major>_BETA<n> tag instead of a regular minor release.
+// latest REL_<major>_RC<n> tag (or REL_<major>_BETA<n> if no RC exists) instead of a regular minor release.
 //
 // The list can be overridden with PG_MAJORS=9.6,10,...,20b or extended
 // automatically with PG_AUTO=1 (default).  With PG_AUTO=1 the extractor scans
 // all REL_* tags in the repository, keeps every major from PG_MIN_MAJOR
-// upward (default 9.6), and appends the latest REL_<next>_BETA tag as
+// upward (default 9.6), and appends the latest REL_<next>_RC/BETA tag as
 // "<next>b" when that beta major has no released tag yet.
 const DEFAULT_MAJORS = ['9.6', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19b'];
 const PG_MIN_MAJOR = process.env.PG_MIN_MAJOR || '9.6';
@@ -64,7 +64,9 @@ function listTags() {
 function pickTagForMajor(major, allTags) {
   if (major.endsWith('b')) {
     const base = major.slice(0, -1);
-    return latest(allTags, new RegExp(`^REL_${base}_BETA(\\d+)$`));
+    // Any RC outranks every beta; otherwise fall back to the latest beta.
+    return latest(allTags, new RegExp(`^REL_${base}_RC(\\d+)$`))
+        || latest(allTags, new RegExp(`^REL_${base}_BETA(\\d+)$`));
   }
   if (major.startsWith('9.')) {
     const [, minor] = major.split('.');
@@ -94,7 +96,7 @@ function majorRank(m) {
 }
 
 // Discover majors from git tags: every REL9_x_y and REL_XX_y (released), plus
-// the latest REL_XX_BETAn where XX has no released tag yet.
+// the latest REL_XX_RCn/REL_XX_BETAn where XX has no released tag yet.
 function discoverMajors(allTags, minMajor) {
   const minRank = majorRank(minMajor);
   const releasedMajors = new Set();
@@ -103,7 +105,7 @@ function discoverMajors(allTags, minMajor) {
     let m;
     if ((m = t.match(/^REL9_(\d+)_\d+$/)))         releasedMajors.add(`9.${m[1]}`);
     else if ((m = t.match(/^REL_(\d+)_\d+$/)))     releasedMajors.add(m[1]);
-    else if ((m = t.match(/^REL_(\d+)_BETA\d+$/))) betaMajors.add(m[1]);
+    else if ((m = t.match(/^REL_(\d+)_(?:BETA|RC)\d+$/))) betaMajors.add(m[1]);
   }
   const out = [];
   for (const maj of releasedMajors) {

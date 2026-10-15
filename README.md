@@ -40,7 +40,7 @@ version-portable queries, and anyone who's ever wondered "wait, does
 - Data is generated once at build time from the PostgreSQL SGML source at each
   release tag (`REL_18_6`, `REL_17_11`, …, `REL9_6_24`) and shipped as a
   single JSON file — no backend required. Unreleased next majors are picked
-  up automatically from `REL_XX_BETAn` tags and shown as e.g. `19β`.
+  up automatically from `REL_XX_RCn` / `REL_XX_BETAn` tags (RC preferred) and shown as e.g. `19β`.
 
 ## Data source
 
@@ -70,7 +70,7 @@ usually needs zero code changes.
 
    By default the script scans every `REL9_x_y` and `REL_XX_y` tag from PG 9.6
    forward, picks the latest minor of each released major, and appends the
-   latest `REL_XX_BETAn` tag of any next major that hasn't shipped yet (shown
+   latest `REL_XX_RCn` (or else `REL_XX_BETAn`) tag of any next major that hasn't shipped yet (shown
    as `19β`, `20β`, etc.). The chosen tag for each major is recorded in
    `catalog.json` under `versionTags`.
 

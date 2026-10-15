@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-06T14:49:27.589Z",
+  "generatedAt": "2026-10-15T15:55:07.838Z",
   "sourceRepo": "/Users/richyen/github/postgres",
   "versions": [
     "9.6",
@@ -25,7 +25,7 @@
     "17": "REL_17_11",
     "18": "REL_18_6",
     "9.6": "REL9_6_24",
-    "19b": "REL_19_BETA4"
+    "19b": "REL_19_RC1"
   },
   "relations": [
     {
