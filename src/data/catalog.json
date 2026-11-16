@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T15:55:07.838Z",
+  "generatedAt": "2026-11-16T20:19:14.490Z",
   "sourceRepo": "/Users/richyen/github/postgres",
   "versions": [
     "9.6",
@@ -19,13 +19,13 @@
     "11": "REL_11_22",
     "12": "REL_12_22",
     "13": "REL_13_23",
-    "14": "REL_14_24",
-    "15": "REL_15_19",
-    "16": "REL_16_15",
-    "17": "REL_17_11",
-    "18": "REL_18_6",
+    "14": "REL_14_25",
+    "15": "REL_15_20",
+    "16": "REL_16_16",
+    "17": "REL_17_12",
+    "18": "REL_18_7",
     "9.6": "REL9_6_24",
-    "19b": "REL_19_RC1"
+    "19b": "REL_19_RC2"
   },
   "relations": [
     {
@@ -3594,7 +3594,7 @@
             {
               "name": "attoptions",
               "type": "text[]",
-              "description": "Attribute-level options, as keyword=value strings"
+              "description": "Attribute-level options, as keyword=value strings. Can also contain some internal options prefixed with pg_, which cannot be set via DDL. Currently the only internal option is pg_attver."
             },
             {
               "name": "attfdwoptions",
@@ -3729,7 +3729,7 @@
             {
               "name": "attoptions",
               "type": "text[]",
-              "description": "Attribute-level options, as keyword=value strings"
+              "description": "Attribute-level options, as keyword=value strings. Can also contain some internal options prefixed with pg_, which cannot be set via DDL. Currently the only internal option is pg_attver."
             },
             {
               "name": "attfdwoptions",
@@ -3864,7 +3864,7 @@
             {
               "name": "attoptions",
               "type": "text[]",
-              "description": "Attribute-level options, as keyword=value strings"
+              "description": "Attribute-level options, as keyword=value strings. Can also contain some internal options prefixed with pg_, which cannot be set via DDL. Currently the only internal option is pg_attver."
             },
             {
               "name": "attfdwoptions",
@@ -3999,7 +3999,7 @@
             {
               "name": "attoptions",
               "type": "text[]",
-              "description": "Attribute-level options, as keyword=value strings"
+              "description": "Attribute-level options, as keyword=value strings. Can also contain some internal options prefixed with pg_, which cannot be set via DDL. Currently the only internal option is pg_attver."
             },
             {
               "name": "attfdwoptions",
@@ -4129,7 +4129,7 @@
             {
               "name": "attoptions",
               "type": "text[]",
-              "description": "Attribute-level options, as keyword=value strings"
+              "description": "Attribute-level options, as keyword=value strings. Can also contain some internal options prefixed with pg_, which cannot be set via DDL. Currently the only internal option is pg_attver."
             },
             {
               "name": "attfdwoptions",
@@ -4369,7 +4369,7 @@
             {
               "name": "attoptions",
               "type": "text[]",
-              "description": "Attribute-level options, as keyword=value strings"
+              "description": "Attribute-level options, as keyword=value strings. Can also contain some internal options prefixed with pg_, which cannot be set via DDL. Currently the only internal option is pg_attver."
             },
             {
               "name": "attfdwoptions",
@@ -45445,12 +45445,12 @@
             {
               "name": "backup_total",
               "type": "bigint",
-              "description": "Total amount of data that will be streamed. This is estimated and reported as of the beginning of streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
+              "description": "Total amount of data that will be streamed. This counts archive data before any server-side compression. The estimate is reported as of the beginning of the streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
             },
             {
               "name": "backup_streamed",
               "type": "bigint",
-              "description": "Amount of data streamed. This counter only advances when the phase is streaming database files or transferring wal files."
+              "description": "Amount of data streamed. This counts archive data before any server-side compression. This counter only advances when the phase is streaming database files or transferring wal files."
             },
             {
               "name": "tablespaces_total",
@@ -45480,12 +45480,12 @@
             {
               "name": "backup_total",
               "type": "bigint",
-              "description": "Total amount of data that will be streamed. This is estimated and reported as of the beginning of streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
+              "description": "Total amount of data that will be streamed. This counts archive data before any server-side compression. The estimate is reported as of the beginning of the streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
             },
             {
               "name": "backup_streamed",
               "type": "bigint",
-              "description": "Amount of data streamed. This counter only advances when the phase is streaming database files or transferring wal files."
+              "description": "Amount of data streamed. This counts archive data before any server-side compression. This counter only advances when the phase is streaming database files or transferring wal files."
             },
             {
               "name": "tablespaces_total",
@@ -45515,12 +45515,12 @@
             {
               "name": "backup_total",
               "type": "bigint",
-              "description": "Total amount of data that will be streamed. This is estimated and reported as of the beginning of streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
+              "description": "Total amount of data that will be streamed. This counts archive data before any server-side compression. The estimate is reported as of the beginning of the streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
             },
             {
               "name": "backup_streamed",
               "type": "bigint",
-              "description": "Amount of data streamed. This counter only advances when the phase is streaming database files or transferring wal files."
+              "description": "Amount of data streamed. This counts archive data before any server-side compression. This counter only advances when the phase is streaming database files or transferring wal files."
             },
             {
               "name": "tablespaces_total",
@@ -45550,12 +45550,12 @@
             {
               "name": "backup_total",
               "type": "bigint",
-              "description": "Total amount of data that will be streamed. This is estimated and reported as of the beginning of streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
+              "description": "Total amount of data that will be streamed. This counts archive data before any server-side compression. The estimate is reported as of the beginning of the streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
             },
             {
               "name": "backup_streamed",
               "type": "bigint",
-              "description": "Amount of data streamed. This counter only advances when the phase is streaming database files or transferring wal files."
+              "description": "Amount of data streamed. This counts archive data before any server-side compression. This counter only advances when the phase is streaming database files or transferring wal files."
             },
             {
               "name": "tablespaces_total",
@@ -45585,12 +45585,12 @@
             {
               "name": "backup_total",
               "type": "bigint",
-              "description": "Total amount of data that will be streamed. This is estimated and reported as of the beginning of streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
+              "description": "Total amount of data that will be streamed. This counts archive data before any server-side compression. The estimate is reported as of the beginning of the streaming database files phase. Note that this is only an approximation since the database may change during streaming database files phase and WAL log may be included in the backup later. This is always the same value as backup_streamed once the amount of data streamed exceeds the estimated total size. If the estimation is disabled in pg_basebackup (i.e., --no-estimate-size option is specified), this is NULL."
             },
             {
               "name": "backup_streamed",
               "type": "bigint",
-              "description": "Amount of data streamed. This counter only advances when the phase is streaming database files or transferring wal files."
+              "description": "Amount of data streamed. This counts archive data before any server-side compression. This counter only advances when the phase is streaming database files or transferring wal files."
             },
             {
               "name": "tablespaces_total",
